@@ -186,3 +186,22 @@ def map_station(request):
      }
 
      return render(request, 'map_station.html', context)
+
+def fire_incidents(request):
+    locations_with_incidents = Locations.objects.annotate(
+        num_incidents=Count('incident')
+    ).values(
+        'id', 'name', 'latitude', 'longitude', 'city', 'num_incidents'
+    )
+
+    # Convert latitude and longitude to float
+    for location in locations_with_incidents:
+        location['latitude'] = float(location['latitude'])
+        location['longitude'] = float(location['longitude'])
+
+    context = {
+        'locations': list(locations_with_incidents),
+    }
+
+    return render(request, 'fire_incidents.html', context)
+
