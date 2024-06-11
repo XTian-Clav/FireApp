@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.urls import path
 
-from fire.views import HomePageView, ChartView, PieCountbySeverity, LineCountbyMonth, MultilineIncidentTop3Country, multipleBarbySeverity, IncidentList, IncidentCreateView, IncidentUpdateView, IncidentDeleteView
-from fire import views
+from fire.views import (
+    HomePageView, ChartView, PieCountbySeverity, LineCountbyMonth, MultilineIncidentTop3Country, multipleBarbySeverity, map_station, fire_incidents,
+    
+    FirestationList, FirestationCreateView, FirestationUpdateView, FirestationDeleteView,
+    IncidentList, IncidentCreateView, IncidentUpdateView, IncidentDeleteView
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -13,11 +17,16 @@ urlpatterns = [
     path('lineChart/', LineCountbyMonth, name='chart'),
     path('multilineChart/', MultilineIncidentTop3Country, name='chart'),
     path('multiBarChart/', multipleBarbySeverity, name='chart'),
-    path('stations', views.map_station, name='map-station'),
-    path('incidents', views.fire_incidents, name='fire-incidents'),
+    path('stations', map_station, name='map-station'),
+    path('incidents', fire_incidents, name='fire-incidents'),
 
-    path('list', IncidentList.as_view(), name='firestation-list'),
-    path('list/add', IncidentCreateView.as_view(), name='firestation-add'),
-    path('list/<pk>', IncidentUpdateView.as_view(), name='firestation-update'),
-    path('list/<pk>/delete', IncidentDeleteView.as_view(), name='firestation-delete'),
+    path('incident_list', IncidentList.as_view(), name='incident-list'),
+    path('incident_list/add/', IncidentCreateView.as_view(), name='incident-add'),
+    path('incident_list/<pk>', IncidentUpdateView.as_view(), name='incident-update'),
+    path('incident_list/<pk>/delete', IncidentDeleteView.as_view(), name='incident-delete'),
+
+    path('firestation_list', FirestationList.as_view(), name='firestation-list'),
+    path('firestation_list/add/', FirestationCreateView.as_view(), name='firestation-add'),
+    path('firestation_list/<pk>', FirestationUpdateView.as_view(), name='firestation-update'),
+    path('firestation_list/<pk>/delete', FirestationDeleteView.as_view(), name='firestation-delete'),
 ]

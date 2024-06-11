@@ -6,18 +6,19 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">Add New Organization</div>
+                        <div class="card-title">Delete Organization</div>
                         <div class="card-category">Page Subtitle</div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="card-body">
                             <form class="" action="" method="post" novalidate>
+                                <P>Are you sure you want to delete "{{ object.name }}"?</P>
                                 {% csrf_token %} {% include 'includes/form.html' %}
                                 
                                 <div class="form-group">
                                     <div class="col-md-12 col-sm-3">
-                                        <button type="submit" class="btn btn-primary btn-rounded">Submit</button>
+                                        <button type="submit" class="btn btn-primary btn-rounded">Delete</button>
                                     </div>
                                 </div>
                             </form>
@@ -29,3 +30,4 @@
     </div>
 </div>
 {% endblock %}
+
