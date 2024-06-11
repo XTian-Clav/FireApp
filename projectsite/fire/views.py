@@ -206,6 +206,41 @@ def fire_incidents(request):
 
     return render(request, 'fire_incidents.html', context)
 
+class LocationsList(ListView):
+    model = Locations
+    template_name = 'locations_list.html'
+    context_object_name = 'locations'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(LocationsList, self).get_queryset(*args, **kwargs)
+        if self.request.GET.get("q") is not None:
+            query = self.request.GET.get('q')
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(address__icontains=query) |
+                Q(city_level__icontains=query) |
+                Q(country__icontains=query)
+            )
+        return qs
+
+class LocationsCreateView(CreateView):
+    model = Locations
+    form_class = LocationsForm
+    template_name = 'locations_add.html'
+    success_url = reverse_lazy('locations-list')
+
+class LocationsUpdateView(UpdateView):
+    model = Locations
+    form_class = LocationsForm
+    template_name = 'locations_edit.html'
+    success_url = reverse_lazy('locations-list')
+
+class LocationsDeleteView(DeleteView):
+    model = Locations
+    template_name = 'locations_del.html'
+    success_url = reverse_lazy('locations-list')
+
 class IncidentList(ListView):
     model = Incident
     template_name = 'incident_list.html'
