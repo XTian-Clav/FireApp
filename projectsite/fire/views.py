@@ -227,18 +227,18 @@ class IncidentList(ListView):
 class IncidentCreateView(CreateView):
     model = Incident
     form_class = IncidentForm
-    template_name = 'incident_form.html'
+    template_name = 'incident_add.html'
     success_url = reverse_lazy('incident-list')
 
 class IncidentUpdateView(UpdateView):
     model = Incident
     form_class = IncidentForm
-    template_name = 'incident_form.html'
+    template_name = 'incident_edit.html'
     success_url = reverse_lazy('incident-list')
 
 class IncidentDeleteView(DeleteView):
     model = Incident
-    template_name = 'incident_confirm_delete.html'
+    template_name = 'incident_del.html'
     success_url = reverse_lazy('incident-list')
 
 class FirestationList(ListView):
