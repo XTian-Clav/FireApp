@@ -368,3 +368,39 @@ class FireTruckDeleteView(DeleteView):
     model = FireTruck
     template_name = 'firetruck_del.html'
     success_url = reverse_lazy('firetruck-list')
+
+class WeatherConditionsList(ListView):
+    model = WeatherConditions
+    template_name = 'weather_list.html'
+    context_object_name = 'weather'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(WeatherConditionsList, self).get_queryset(*args, **kwargs)
+        if self.request.GET.get("q") is not None:
+            query = self.request.GET.get('q')
+            qs = qs.filter(
+                Q(incident__icontains=query) |
+                Q(temperature__icontains=query) |
+                Q(humidity__icontains=query) |
+                Q(wind_speed__icontains=query) |
+                Q(weather_description__icontains=query)
+            )
+        return qs
+
+class WeatherConditionsCreateView(CreateView):
+    model = WeatherConditions
+    form_class = WeatherConditionsForm
+    template_name = 'weather_add.html'
+    success_url = reverse_lazy('weather-list')
+
+class WeatherConditionsUpdateView(UpdateView):
+    model = WeatherConditions
+    form_class = WeatherConditionsForm
+    template_name = 'weather_edit.html'
+    success_url = reverse_lazy('weather-list')
+
+class WeatherConditionsDeleteView(DeleteView):
+    model = WeatherConditions
+    template_name = 'weather_del.html'
+    success_url = reverse_lazy('weather-list')
