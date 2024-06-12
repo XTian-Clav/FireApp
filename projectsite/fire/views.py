@@ -39,7 +39,6 @@ def PieCountbySeverity(request):
         rows = cursor.fetchall()
 
     if rows:
-        # Construct the dictionary with severity level as keys and count as values
         data = {severity: count for severity, count in rows}
     else:
         data = {}
@@ -55,19 +54,18 @@ def LineCountbyMonth(request):
     incidents_per_month = Incident.objects.filter(date_time__year=current_year) \
         .values_list('date_time', flat=True)
 
-    # Counting the number of incidents per month
     for date_time in incidents_per_month:
         month = date_time.month
         result[month] += 1
 
-    # If you want to convert month numbers to month names, you can use a dictionary mapping
     month_names = {
         1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',
         7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
     }
 
     result_with_month_names = {
-        month_names[int(month)]: count for month, count in result.items()}
+        month_names[int(month)]: count for month, count in result.items()
+    }
 
     return JsonResponse(result_with_month_names)
 
@@ -109,28 +107,20 @@ def MultilineIncidentTop3Country(request):
         cursor.execute(query)
         rows = cursor.fetchall()
 
-    # Initialize a dictionary to store the result
     result = {}
-
-    # Initialize a set of months from January to December
     months = set(str(i).zfill(2) for i in range(1, 13))
 
-    # Loop through the query results
     for row in rows:
         country = row[0]
         month = row[1]
         total_incidents = row[2]
 
-        # If the country is not in the result dictionary, initialize it with all months set to zero
         if country not in result:
             result[country] = {month: 0 for month in months}
 
-        # Update the incident count for the corresponding month
         result[country][month] = total_incidents
 
-    # Ensure there are always 3 countries in the result
     while len(result) < 3:
-        # Placeholder name for missing countries
         missing_country = f"Country {len(result) + 1}"
         result[missing_country] = {month: 0 for month in months}
 
@@ -158,7 +148,7 @@ def multipleBarbySeverity(request):
     months = set(str(i).zfill(2) for i in range(1, 13))
 
     for row in rows:
-        level = str(row[0])  # Ensure the severity level is a string
+        level = str(row[0])
         month = row[1]
         total_incidents = row[2]
 
@@ -167,26 +157,25 @@ def multipleBarbySeverity(request):
 
         result[level][month] = total_incidents
 
-    # Sort months within each severity level
     for level in result:
         result[level] = dict(sorted(result[level].items()))
 
     return JsonResponse(result)
 
 def map_station(request):
-     fireStations = FireStation.objects.values('name', 'latitude', 'longitude')
+    fireStations = FireStation.objects.values('name', 'latitude', 'longitude')
 
-     for fs in fireStations:
-         fs['latitude'] = float(fs['latitude'])
-         fs['longitude'] = float(fs['longitude'])
+    for fs in fireStations:
+        fs['latitude'] = float(fs['latitude'])
+        fs['longitude'] = float(fs['longitude'])
 
-     fireStations_list = list(fireStations)
+    fireStations_list = list(fireStations)
 
-     context = {
-         'fireStations': fireStations_list,
-     }
+    context = {
+        'fireStations': fireStations_list,
+    }
 
-     return render(request, 'map_station.html', context)
+    return render(request, 'map_station.html', context)
 
 def fire_incidents(request):
     locations_with_incidents = Locations.objects.annotate(
@@ -195,7 +184,6 @@ def fire_incidents(request):
         'id', 'name', 'latitude', 'longitude', 'city', 'num_incidents'
     )
 
-    # Convert latitude and longitude to float
     for location in locations_with_incidents:
         location['latitude'] = float(location['latitude'])
         location['longitude'] = float(location['longitude'])
@@ -278,7 +266,7 @@ class IncidentDeleteView(DeleteView):
 
 class FirestationList(ListView):
     model = FireStation
-    context_object_name = 'firestation'
+    context_object_name = 'firestations'
     template_name = 'firestation_list.html'
     paginate_by = 10
 
@@ -310,3 +298,38 @@ class FirestationDeleteView(DeleteView):
     model = FireStation
     template_name = 'firestation_del.html'
     success_url = reverse_lazy('firestation-list')
+
+class FirefightersList(ListView):
+    model = Firefighters
+    context_object_name = 'firefighters'
+    template_name = 'firefighters_list.html'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(FirefightersList, self).get_queryset(*args, **kwargs)
+        if self.request.GET.get("q") is not None:
+            query = self.request.GET.get('q')
+            qs = qs.filter(
+                Q(name__icontains(query)) |
+                Q(rank__icontains(query)) |
+                Q(experience_level__icontains(query)) |
+                Q(station__icontains(query))
+            )
+        return qs
+
+class FirefightersCreateView(CreateView):
+    model = Firefighters
+    form_class = FirefightersForm
+    template_name = 'firefighters_add.html'
+    success_url = reverse_lazy('firefighters-list')
+
+class FirefightersUpdateView(UpdateView):
+    model = Firefighters
+    form_class = FirefightersForm
+    template_name = 'firefighters_edit.html'
+    success_url = reverse_lazy('firefighters-list')
+
+class FirefightersDeleteView(DeleteView):
+    model = Firefighters
+    template_name = 'firefighters_del.html'
+    success_url = reverse_lazy('firefighters-list')
